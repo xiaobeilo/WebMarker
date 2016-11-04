@@ -1,0 +1,108 @@
+body, ul, dd, dl, dt, h1, h2, h3, h4, h5, h6, p {
+  padding: 0;
+  margin: 0;
+  list-style: none; }
+
+body {
+  font-family: 'microsoft yahei';
+  overflow-x: hidden; }
+
+img {
+  vertical-align: bottom; }
+
+a, a:hover, a:focus, a:link {
+  text-decoration: none;
+  outline: none; }
+
+#nav {
+  width: 220px;
+  float: left;
+  background-color: #393939;
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  z-index: 100;
+  left: 0;
+  transform: translateX(0); }
+  #nav:before {
+    display: none; }
+  #nav .logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 5px solid #4E83F1;
+    display: block;
+    margin: 50px auto;
+    overflow: hidden; }
+    #nav .logo img {
+      width: inherit;
+      height: inherit; }
+  #nav .scl_container {
+    position: absolute;
+    top: 180px;
+    bottom: 10%;
+    width: 100%;
+    overflow: auto; }
+    #nav .scl_container ul li a {
+      color: #f5f5f5; }
+
+.sliderEnd {
+  transition: 0.3s ease; }
+
+#main {
+  padding-left: 220px;
+  background-color: #f5f5f5;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0; }
+  #main ul li a {
+    color: #666; }
+
+#search {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #efefef;
+  padding: 0.5% 1%;
+  box-sizing: border-box;
+  transform: translateY(-100%); }
+  #search .ipt {
+    box-sizing: border-box;
+    width: 98%; }
+    #search .ipt input {
+      outline: none;
+      width: 100%;
+      height: 50px;
+      line-height: 50px;
+      font-size: 24px;
+      padding-left: 20px;
+      border: none;
+      box-shadow: 1px 4px 5px 2px #ddd; }
+  #search .list {
+    width: 100%;
+    margin-top: 20px; }
+
+@media (max-width: 768px) {
+  #nav {
+    width: 50%;
+    float: left;
+    transform: translateX(-100%); }
+    #nav:before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: -100;
+      width: 9999px;
+      bottom: 0;
+      background-color: #393939; }
+
+  #main {
+    padding-left: 0; } }
+
+/*# sourceMappingURL=style.css.map */
