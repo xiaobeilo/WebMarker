@@ -116,27 +116,40 @@ window.document.addEventListener('drop',function(e){
 },false);
 function dealStr(str){
     var dlChace = '';
-    var f1 = /<H1>([\s\S]+)<\/H1>\s*(<DL>[\s|\S]+<\/DL>)/i;
-    var f1Result  = str.match(f1);
-    // console.log(f1Result[2]);
-    bookmarks.h1 = f1Result[1];
-    findDl(bookmarks,f1Result[2]);
+    recDl(bookmarks,cutHead(str));
     console.log(bookmarks);
-    function findDl(obj,str){
-        str = trim(str);
-        // document.getElementById('main').innerText = str;
-        var reg = /<H3[^>]+>([^<]*)<\/H3>\s*(<DL>[\s|\S]+<\/DL>)/i;
-        var result = str.match(reg);
-        siblingsDl(result[2]);
-        if(result){
-            obj.dl ={
-                h3:result[1],
-                dt:getDt(str)
-            };
-            findDl(obj.dl,result[2]);
-        }else{
-            obj.dt = getDt(str);
+
+    function findDl(arr){//递归查找dl下面是否还有dl元素
+        return {
+            h3:arr[1],
+            dt:getDt(arr[2])
+            // dl:checkDl(arr[2])?recDl(arr[2]):undefined
+        };
+    }
+    function recDl(obj,str){//递归查找dl兄弟元素
+        var dlList =  str.match(/<DT><H3[^>]+>[^<]+<\/H3>\s*<DL>[\s|\S]+?(\s*)<\/DL>/ig);
+        if(dlList){
+            obj.dl = [];
+            for(var i=0;i<dlList.length;i++){
+                if(checkDl(dlList[i])){
+                    obj.dl.push(findDl(checkDl(dlList[i])));
+                }
+            }
         }
+        console.log(str)
+        obj.h3 = str.match(/<DT><H3[^>]+>([^<]+)<\/H3>/i)[1];
+        obj.dt = getDt(removeH3Dl(cutFoot(cutHead(str))));
+    }
+    function cutHead(str){
+        return str.replace(/[\s|\S]+?<DT>/i,'');
+    }
+    function cutFoot(str){
+        return str.replace(/<\/DL>[\S\s]{0,10}$/ig,'');
+    }
+    function checkDl(str){
+        var reg = /<H3[^>]+>([^<]*)<\/H3>\s*(<DL>[\s|\S]+?<\/DL>)/i;//检测h3和后面所有dl
+        var result = str.match(reg);
+        return result;
     }
     function getDlList(str){
         str = removeDl(str);
@@ -145,13 +158,15 @@ function dealStr(str){
         return /<DL>/.test(str);
     }
     function trim(str){
-        return str.replace(/^\s*<DL>\s*<p>|<\/DL>$/ig,'');//去掉前尾dl标签
+        return str.replace(/^\s*<DL>\s*<p>|<\/DL>$/i,'');//去掉前尾dl标签
     }
     function removeDl(str){
         return str.replace(/<DL>[\s|\S]+<\/DL>/ig,'');//去除dl只剩下dt
     }
+    function removeH3Dl(str){
+        return str.replace(/<H3[^>]+>([^<]*)<\/H3>\s*(<DL>[\s|\S]+?<\/DL>)/ig,'');
+    }
     function getDt(str){
-        str = removeDl(str);
         var dtList = [];
         var dtListStr = str.match(/<DT><A\s*HREF="([^"]+)"[^>]+>([^<]*)<\/A>/ig);
         for(var i=0;i<dtListStr.length;i++){
