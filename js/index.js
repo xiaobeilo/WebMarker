@@ -115,47 +115,51 @@ window.document.addEventListener('drop',function(e){
     }
 },false);
 function dealStr(str){
-    var dlChace = '';
-    recDl(bookmarks,cutHead(str));
-    console.log(bookmarks);
+    str  = dealSim(str);
+    if(checkBrowser(str)==='mozilla'){
+        str = cutMozilla(str);
+    }
+    recDl(bookmarks,cutHeadFoot(str));
 
-    function findDl(arr){//递归查找dl下面是否还有dl元素
+    function recDl(arr,str){//找出兄弟元素并且整理
+        var obj = {};
+        obj.h3 = str.match(/<H3>([^<]+)<\/H3>/i)[1];
+        obj.dt = getDt(removeH3Dl(cutHeadFoot(str)));
+        str = cutHeadFoot(str);
+        var dlList =  str.match(/<H3>[^<]+<\/H3><DL>[\s|\S]*?<\/DL>/g);
+        if(dlList){
+            obj.dl = [];
+            for(var i=0;i<dlList.length;i++){
+                if(pickH3Dl(dlList[i])){
+                    obj.dl.push(findDl(pickH3Dl(dlList[i])));
+                    if(!isOver(dlList[i])){
+                        recDl(obj.dl,dlList[i]);
+                    }
+                }else{
+                    obj.dl.push({h3:dlList[i].match(/<H3>([^<]+)<\/H3>/i)[1]})
+                }
+            }
+        }
+        console.log(arr)
+        arr.push(obj);
+    }
+    function cutHeadFoot(str){
+        // return str.replace(/^<DL>|<\/DL>$/g,'');
+        str = str.replace(/^[\S|\s]*?<DL>/,'');
+        str = str.slice(0,str.lastIndexOf('<\/DL>'));
+        return str;
+    }
+    function pickH3Dl(str){
+        var reg = /<H3>([^<]*)<\/H3>(<DL>[\s|\S]+?<\/DL>)/i;//提取h3和后面的dl
+        var result = str.match(reg);
+        return result;
+    }
+    function findDl(arr){//将dl内的数据写成对象
         return {
             h3:arr[1],
             dt:getDt(arr[2])
             // dl:checkDl(arr[2])?recDl(arr[2]):undefined
         };
-    }
-    function recDl(obj,str){//递归查找dl兄弟元素
-        var dlList =  str.match(/<DT><H3[^>]+>[^<]+<\/H3>\s*<DL>[\s|\S]+?(\s*)<\/DL>/ig);
-        if(dlList){
-            obj.dl = [];
-            for(var i=0;i<dlList.length;i++){
-                if(checkDl(dlList[i])){
-                    obj.dl.push(findDl(checkDl(dlList[i])));
-                }
-            }
-        }
-        console.log(str)
-        obj.h3 = str.match(/<DT><H3[^>]+>([^<]+)<\/H3>/i)[1];
-        obj.dt = getDt(removeH3Dl(cutFoot(cutHead(str))));
-    }
-    function cutHead(str){
-        return str.replace(/[\s|\S]+?<DT>/i,'');
-    }
-    function cutFoot(str){
-        return str.replace(/<\/DL>[\S\s]{0,10}$/ig,'');
-    }
-    function checkDl(str){
-        var reg = /<H3[^>]+>([^<]*)<\/H3>\s*(<DL>[\s|\S]+?<\/DL>)/i;//检测h3和后面所有dl
-        var result = str.match(reg);
-        return result;
-    }
-    function getDlList(str){
-        str = removeDl(str);
-    }
-    function hasDl(str){
-        return /<DL>/.test(str);
     }
     function trim(str){
         return str.replace(/^\s*<DL>\s*<p>|<\/DL>$/i,'');//去掉前尾dl标签
@@ -164,13 +168,13 @@ function dealStr(str){
         return str.replace(/<DL>[\s|\S]+<\/DL>/ig,'');//去除dl只剩下dt
     }
     function removeH3Dl(str){
-        return str.replace(/<H3[^>]+>([^<]*)<\/H3>\s*(<DL>[\s|\S]+?<\/DL>)/ig,'');
+        return str.replace(/<H3>[^<]*<\/H3><DL>[\s|\S]+?<\/DL>/ig,'');//删除h3和dl的兄弟元素
     }
     function getDt(str){
         var dtList = [];
-        var dtListStr = str.match(/<DT><A\s*HREF="([^"]+)"[^>]+>([^<]*)<\/A>/ig);
+        var dtListStr = str.match(/<A\sHREF="([^"]+)">([^<]*)<\/A>/g);
         for(var i=0;i<dtListStr.length;i++){
-            var result = dtListStr[i].match(/<DT><A\s*HREF="([^"]+)"[^>]+>([^<]*)<\/A>/i);
+            var result = dtListStr[i].match(/<A\sHREF="([^"]+)">([^<]*)<\/A>/);
             dtList[dtList.length] = {
                 href:result[1],
                 name:result[2]
@@ -178,9 +182,29 @@ function dealStr(str){
         }
         return dtList;
     }
-    function siblingsDl(str){
-        str = trim(str);
-        var reg = /<DL>[\s|\S]+?(\s*)<\/DL>/ig;
-        var result = str.match(reg);
+    function checkBrowser(str){
+        var mozilla = /<H3[^>]+>?\s*Mozilla/i;//第一个h3为mozila
+        if(mozilla.test(str)){
+            return 'mozilla';
+        }
+    }
+    function cutMozilla(str){
+        return str.replace(/<DT>[\s|\S]+?<\/DL>/i,'');
+    }
+    function isOver(str){//是否到最深度?否就递归删除直到最深部
+        if(str.match(/<H3>/g).length>1){
+            return false;
+        }else{
+            return true;
+        }
+    }
+    function dealSim(str){
+        str = str.replace(/<DT>|<p>|ADD_DATE="\w+"|ICON="[^"]+"|LAST_MODIFIED="\w+"/g,'');//去掉垃圾信息
+        str = str.replace(/[\s|\S]+<\/H1>/,'');//去掉h1前面所有
+        str = str.replace(/>\s*</g,'><');//去掉><之间空格
+        str = str.replace(/<H3[^>]+>/,'<H3>');//去掉h3之间的多余信息
+        str = str.replace(/\s{2,}/g,' ');//压缩空格
+        str = str.replace(/\s+>/g,'>');
+        return str.trim();
     }
 }
