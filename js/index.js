@@ -98,7 +98,7 @@ Scrollbar.init(document.getElementsByClassName('scl_container')[0],{
     overscrollEffect:'bounce'
 });
 //书签整理:
-var bookmarks = {};
+var bookmarks = [];
 var bookmarksOrigin = '';
 window.document.addEventListener('dragover',function(e){
     e.preventDefault();
@@ -112,6 +112,12 @@ window.document.addEventListener('drop',function(e){
         bookmarksOrigin = this.result;
         dealStr(bookmarksOrigin);
         /*这里最后使用webworker*/
+        var ul = new Vue({
+            el:'#dl',
+            data:{
+                bookmarks:bookmarks[0].dl
+            }
+        })
     }
 },false);
 function dealStr(str){
@@ -119,68 +125,69 @@ function dealStr(str){
     if(checkBrowser(str)==='mozilla'){
         str = cutMozilla(str);
     }
-    recDl(bookmarks,cutHeadFoot(str));
-
-    function recDl(arr,str){//找出兄弟元素并且整理
+    divDL(bookmarks,cutHeadFoot(str));
+    function divDL(arr,str){
         var obj = {};
-        obj.h3 = str.match(/<H3>([^<]+)<\/H3>/i)[1];
-        obj.dt = getDt(removeH3Dl(cutHeadFoot(str)));
+        obj.h3 = (str.match(/^<H3>([\s|\S]+?)<\/H3>/))[0].slice(4,-5);
         str = cutHeadFoot(str);
-        var dlList =  str.match(/<H3>[^<]+<\/H3><DL>[\s|\S]*?<\/DL>/g);
-        if(dlList){
+        var result = findAllG(str);
+        if(result.length>0){
             obj.dl = [];
-            for(var i=0;i<dlList.length;i++){
-                if(pickH3Dl(dlList[i])){
-                    obj.dl.push(findDl(pickH3Dl(dlList[i])));
-                    if(!isOver(dlList[i])){
-                        recDl(obj.dl,dlList[i]);
-                    }
-                }else{
-                    obj.dl.push({h3:dlList[i].match(/<H3>([^<]+)<\/H3>/i)[1]})
-                }
+            for(var i=0;i<result.length;i++){
+                divDL(obj.dl,result[i]);
             }
+            str = removeH3Dl(str);
         }
-        console.log(arr)
+        obj.dt = getDt(str);
         arr.push(obj);
     }
+    function findAllG(str){
+        var arr = [];
+        var len= str.length;
+        var cache = '';
+        while(cache = digDLFoot(str)){
+            arr.push(cache);
+            str = str.slice(cache.length);
+        }
+        function digDLFoot(str){
+            var start = str.indexOf('<H3>');
+            var end = str.indexOf('</DL>',start);
+            var cache = str.slice(start,end+5);
+            var result = cache.match(/<DL>/g);
+            if(result){
+                while(cache.match(/<DL>/g).length !== cache.match(/<\/DL>/g).length){
+                    end = str.indexOf('</DL>',end+5);
+                    cache = str.slice(start,end+5);
+                }
+                return cache;
+            }else {
+                return false;
+            }
+        }
+        return arr;
+    }
     function cutHeadFoot(str){
-        // return str.replace(/^<DL>|<\/DL>$/g,'');
         str = str.replace(/^[\S|\s]*?<DL>/,'');
         str = str.slice(0,str.lastIndexOf('<\/DL>'));
         return str;
     }
-    function pickH3Dl(str){
-        var reg = /<H3>([^<]*)<\/H3>(<DL>[\s|\S]+?<\/DL>)/i;//提取h3和后面的dl
-        var result = str.match(reg);
-        return result;
-    }
-    function findDl(arr){//将dl内的数据写成对象
-        return {
-            h3:arr[1],
-            dt:getDt(arr[2])
-            // dl:checkDl(arr[2])?recDl(arr[2]):undefined
-        };
-    }
-    function trim(str){
-        return str.replace(/^\s*<DL>\s*<p>|<\/DL>$/i,'');//去掉前尾dl标签
-    }
-    function removeDl(str){
-        return str.replace(/<DL>[\s|\S]+<\/DL>/ig,'');//去除dl只剩下dt
-    }
     function removeH3Dl(str){
-        return str.replace(/<H3>[^<]*<\/H3><DL>[\s|\S]+?<\/DL>/ig,'');//删除h3和dl的兄弟元素
+        return str.replace(/<H3>[^<]*<\/H3><DL>[\s|\S]+<\/DL>/ig,'');//删除h3和dl的兄弟元素
     }
     function getDt(str){
         var dtList = [];
         var dtListStr = str.match(/<A\sHREF="([^"]+)">([^<]*)<\/A>/g);
-        for(var i=0;i<dtListStr.length;i++){
-            var result = dtListStr[i].match(/<A\sHREF="([^"]+)">([^<]*)<\/A>/);
-            dtList[dtList.length] = {
-                href:result[1],
-                name:result[2]
-            };
+        if(dtListStr){
+            for(var i=0;i<dtListStr.length;i++){
+                var result = dtListStr[i].match(/<A\sHREF="([^"]+)">([^<]*)<\/A>/);
+                dtList[dtList.length] = {
+                    href:result[1],
+                    name:result[2]
+                };
+            }
         }
         return dtList;
+
     }
     function checkBrowser(str){
         var mozilla = /<H3[^>]+>?\s*Mozilla/i;//第一个h3为mozila
@@ -190,13 +197,6 @@ function dealStr(str){
     }
     function cutMozilla(str){
         return str.replace(/<DT>[\s|\S]+?<\/DL>/i,'');
-    }
-    function isOver(str){//是否到最深度?否就递归删除直到最深部
-        if(str.match(/<H3>/g).length>1){
-            return false;
-        }else{
-            return true;
-        }
     }
     function dealSim(str){
         str = str.replace(/<DT>|<p>|ADD_DATE="\w+"|ICON="[^"]+"|LAST_MODIFIED="\w+"/g,'');//去掉垃圾信息
