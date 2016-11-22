@@ -51,7 +51,11 @@ a, a:hover, a:focus, a:link {
         border-top: 3px solid transparent;
         border-bottom: 3px solid transparent;
         padding: 5px 0;
-        margin: 5px 0; }
+        margin: 5px 0;
+        cursor: pointer; }
+        #nav .scl_container ul li a.bold {
+          font-weight: bold;
+          color: #549ff1; }
         #nav .scl_container ul li a:hover {
           background-color: #9bc7f7;
           border-color: #1378e6; }
@@ -151,5 +155,11 @@ a, a:hover, a:focus, a:link {
     width: 10px;
     height: 10px;
     background-color: #549ff1; }
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s; }
+
+.fade-enter, .fade-leave-active {
+  opacity: 0; }
 
 /*# sourceMappingURL=style.css.map */

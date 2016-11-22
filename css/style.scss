@@ -8,6 +8,7 @@ $bg-light:#efefef;
 body{
   //background-color:$bg-color;
 }
+
 #nav{
   width:220px;
   float:left;
@@ -50,6 +51,11 @@ body{
           border-bottom:3px solid transparent;
           padding:5px 0;
           margin:5px 0;
+          cursor:pointer;
+          &.bold{
+            font-weight:bold;
+            color:$main-color;
+          }
           &:hover{
             background-color:lighten($main-color,15%);
             border-color:darken($main-color,15%);
@@ -170,4 +176,10 @@ body{
     height:10px;
     background-color:$main-color;
   }
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s
+}
+.fade-enter, .fade-leave-active {
+  opacity: 0
 }

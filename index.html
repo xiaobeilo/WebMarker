@@ -7,105 +7,43 @@
     <title>WebMarker</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/smooth-scrollbar.css">
+    <base target="_blank"/>
 </head>
 <body>
+<script type="text/x-template" id="item-template">
+    <li>
+        <a
+                :class="{bold: isFolder}"
+                @click="toggle"
+                @click="getDt"
+                @dblclick="changeType">
+            {{model.h3}}
+        </a>
+        <ul v-show="open" v-if="isFolder">
+            <item
+                    class="item"
+                    v-for="model in model.dl"
+                    :model="model">
+            </item>
+        </ul>
+    </li>
+</script>
 <nav id="nav">
     <a class="logo" href=""><img src="images/vn.jpg" alt=""></a>
    <div class="scl_container" data-scrollbar="">
-       <ul id="dl">
-            <li v-for="item in bookmarks">
-                <a href="#">{{item.h3}}</a>
-            </li>
-           <li>
-               <a href="">sadfasdfd</a>
-               <ul>
-                   <li><a href="">1211</a></li>
-                   <li><a href="">3423423</a></li>
-               </ul>
-           </li>
+       <ul id="demo">
+           <item v-for="model in treeData"
+                   class="item"
+                   :model="model">
+           </item>
        </ul>
    </div>
 </nav>
 <section id="main">
-    <ul>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
-        <li><a href="#">标签1</a></li>
+    <ul id="linkList" >
+       <li v-for="dt in list">
+           <a v-bind:href="dt.href">{{dt.name}}</a>
+       </li>
     </ul>
 </section>
 <div id="mask">

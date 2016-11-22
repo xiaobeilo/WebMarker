@@ -112,10 +112,17 @@ window.document.addEventListener('drop',function(e){
         bookmarksOrigin = this.result;
         dealStr(bookmarksOrigin);
         /*这里最后使用webworker*/
-        var ul = new Vue({
-            el:'#dl',
-            data:{
-                bookmarks:bookmarks[0].dl
+        // var ul = new Vue({
+        //     el:'#marksDL',
+        //     data:{
+        //         bookmarks:bookmarks[0].dl
+        //     }
+        // })
+        var demo = new Vue({
+            el: '#demo',
+            data: {
+                treeData: bookmarks[0].dl
+                // treeData:data
             }
         })
     }
@@ -208,3 +215,62 @@ function dealStr(str){
         return str.trim();
     }
 }
+// demo data
+var data = {
+    h3:'书签栏',
+    dl:[
+        {
+            h3:'第一层',
+            dt:{
+                name:'lsd'
+            }
+        }
+    ]
+}
+
+// define the item component
+Vue.component('item', {
+    template: '#item-template',
+    props: {
+        model: Object
+    },
+    data: function () {
+        return {
+            open: false
+        }
+    },
+    computed: {
+        isFolder: function () {
+            if(this.model.dl){
+                return true;
+            }else{
+                return false;
+            }
+        }
+    },
+    methods: {
+        toggle: function () {
+            if (this.isFolder) {
+                this.open = !this.open
+            }
+        },
+        changeType: function () {
+            if (!this.isFolder) {
+                Vue.set(this.model, 'dl', [])
+                this.open = true
+            }
+        },
+        getDt:function(){
+            test.list = this.model.dt;
+        }
+    }
+})
+var test = new Vue({
+    el:'#linkList',
+    data(){
+        return {
+            list:[]
+        }
+    }
+})
+// boot up the demo
