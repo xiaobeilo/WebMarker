@@ -16,7 +16,7 @@ body{
   position:absolute;
   bottom:0;
   top:0;
-  z-index:100;
+  z-index:1;
   left:0;
   transform:translateX(0);
   &:before{
@@ -69,7 +69,8 @@ body{
   transition:transform 300ms ease-out;
 }
 #main{
-  padding:30px 30px 30px 250px;
+  //padding:30px 30px 30px 250px;
+  padding-left:220px;
   background-color:#f5f5f5;
   box-sizing:border-box;
   position:absolute;
@@ -77,19 +78,50 @@ body{
   left:0;
   right:0;
   bottom:0;
+  .link_container{
+    position:absolute;
+    top:0;
+    bottom:0;
+    z-index: 2;
+  }
   ul{
+    padding-top:30px;
+    padding-bottom:30px;
     li{
       display:inline-block;
       margin-bottom:25px;
       a{
+        $height:25px;
+        $yPadding:5px;
+        $xPadding:8px;
+        $borderRadius:5px;
         color:#666;
-        padding:5px 8px;
+        padding:$yPadding $xPadding;
+        line-height:$height;
+        height:$height;
         border:1px solid $main-color;
-        border-radius:5px;
+        border-radius:$borderRadius;
         margin-left:25px;
         display:block;
         transition:all 300ms linear;
+        position:relative;
+        span{
+          display:none;
+        }
         &:hover{
+          span{
+            display:block;
+            position:absolute;
+            top:$height + 3 * $yPadding;
+            left:50%;
+            transform:translateX(-50%);
+            background-color:$bg-drak;
+            color:$bg-light;
+            padding:$yPadding $xPadding;
+            border-radius:$borderRadius;
+            white-space:nowrap;
+            z-index:2;
+          }
           background-color:$main-color;
           color:$bg-light;
         }
@@ -147,7 +179,7 @@ body{
       position:absolute;
       top:0;
       right:0;
-      z-index:-100;
+      z-index:-1;
       width:9999px;
       bottom:0;
       background-color:$bg-drak;

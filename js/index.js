@@ -97,6 +97,11 @@ function transform(ele,prop){
 Scrollbar.init(document.getElementsByClassName('scl_container')[0],{
     overscrollEffect:'bounce'
 });
+Scrollbar.init(document.getElementsByClassName('link_container')[0],{
+    overscrollEffect:'glow'
+});
+document.getElementsByClassName('link_container')[0].style.overflowX='visible';
+document.getElementsByClassName('link_container')[0].style.overflowY='hidden';
 //书签整理:
 var bookmarks = [];
 var bookmarksOrigin = '';
@@ -110,21 +115,11 @@ window.document.addEventListener('drop',function(e){
     reader.readAsText(e.dataTransfer.files[0]);
     reader.onload = function(){
         bookmarksOrigin = this.result;
+        bookmarks = [];
         dealStr(bookmarksOrigin);
+        watchMark.bookmarks = bookmarks;
+        marks.list = bookmarks[0].dt;
         /*这里最后使用webworker*/
-        // var ul = new Vue({
-        //     el:'#marksDL',
-        //     data:{
-        //         bookmarks:bookmarks[0].dl
-        //     }
-        // })
-        var demo = new Vue({
-            el: '#demo',
-            data: {
-                treeData: bookmarks[0].dl
-                // treeData:data
-            }
-        })
     }
 },false);
 function dealStr(str){
@@ -187,9 +182,24 @@ function dealStr(str){
         if(dtListStr){
             for(var i=0;i<dtListStr.length;i++){
                 var result = dtListStr[i].match(/<A\sHREF="([^"]+)">([^<]*)<\/A>/);
+                var name = result[2],tit='',desc='';
+                if(name){
+                    var nameResult = name.match(/^([^,，\s\-\_|]+)[,，\s\-\|]*(.*)/);
+                    if(nameResult){
+                        tit = nameResult[1];
+                        desc = nameResult[2];
+                    }else{
+                        tit = name;
+                        desc = '';
+                    }
+                }else{
+                    tit = '';
+                    desc = '';
+                }
                 dtList[dtList.length] = {
                     href:result[1],
-                    name:result[2]
+                    tit:tit,
+                    desc:desc
                 };
             }
         }
@@ -215,28 +225,18 @@ function dealStr(str){
         return str.trim();
     }
 }
-// demo data
-var data = {
-    h3:'书签栏',
-    dl:[
-        {
-            h3:'第一层',
-            dt:{
-                name:'lsd'
-            }
-        }
-    ]
-}
-
-// define the item component
 Vue.component('item', {
     template: '#item-template',
     props: {
         model: Object
     },
     data: function () {
+        var boolean = false;
+        if(this.model.h3==='收藏栏' | this.model.h3==='书签栏'){
+            boolean = true;
+        }
         return {
-            open: false
+            open:boolean
         }
     },
     computed: {
@@ -261,11 +261,13 @@ Vue.component('item', {
             }
         },
         getDt:function(){
-            test.list = this.model.dt;
+            marks.list = this.model.dt;
+            //将列表内的滚动条置0;
+            document.getElementsByClassName('scroll-content')[0].style.transform = 'translate3d(0,0,0);'
         }
     }
 })
-var test = new Vue({
+var marks = new Vue({
     el:'#linkList',
     data(){
         return {
@@ -273,4 +275,11 @@ var test = new Vue({
         }
     }
 })
-// boot up the demo
+var watchMark = new Vue({
+    el: '#nav_folder',
+    data(){
+        return {
+            bookmarks: bookmarks[0]?bookmarks[0].dl:[]
+        }
+    }
+})

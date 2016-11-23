@@ -31,20 +31,24 @@
 <nav id="nav">
     <a class="logo" href=""><img src="images/vn.jpg" alt=""></a>
    <div class="scl_container" data-scrollbar="">
-       <ul id="demo">
-           <item v-for="model in treeData"
-                   class="item"
+       <ul id="nav_folder">
+           <item v-for="model in bookmarks"
                    :model="model">
            </item>
        </ul>
    </div>
 </nav>
 <section id="main">
-    <ul id="linkList" >
-       <li v-for="dt in list">
-           <a v-bind:href="dt.href">{{dt.name}}</a>
-       </li>
-    </ul>
+   <div class="link_container" data-scrollbar="">
+       <ul id="linkList" >
+           <li v-for="dt in list">
+               <a v-bind:href="dt.href">{{dt.tit?dt.tit:'书签名未填写'}}
+                   <span v-if="dt.desc" v->{{dt.desc}}</span>
+               </a>
+
+           </li>
+       </ul>
+   </div>
 </section>
 <div id="mask">
     <aside id="search" class="sliderEnd">
