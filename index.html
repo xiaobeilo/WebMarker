@@ -29,7 +29,7 @@
     </li>
 </script>
 <nav id="nav">
-    <a class="logo" href=""><img src="images/vn.jpg" alt=""></a>
+    <a target="_self" class="logo" href=""><img src="images/vn.jpg" alt=""></a>
    <div class="scl_container" data-scrollbar="">
        <ul id="nav_folder">
            <item v-for="model in bookmarks"
@@ -43,12 +43,17 @@
        <ul id="linkList" >
            <li v-for="dt in list">
                <a v-bind:href="dt.href">{{dt.tit?dt.tit:'书签名未填写'}}
-                   <span v-if="dt.desc" v->{{dt.desc}}</span>
+                   <span v-if="dt.desc">{{dt.desc}}</span>
                </a>
-
            </li>
        </ul>
+
    </div>
+    <div id="save" v-show="show">
+        <input type="text" placeholder="自定义后缀名,如不需要直接点保存即可" v-model="hash">
+        <button @click="check">检测名称是否可用</button>
+        <button @click="save">保存并生成个性后缀</button>
+    </div>
 </section>
 <div id="mask">
     <aside id="search" class="sliderEnd">

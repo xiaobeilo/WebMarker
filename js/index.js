@@ -119,6 +119,7 @@ window.document.addEventListener('drop',function(e){
         dealStr(bookmarksOrigin);
         watchMark.bookmarks = bookmarks;
         marks.list = bookmarks[0].dt;
+        save.show = true;
         /*这里最后使用webworker*/
     }
 },false);
@@ -283,3 +284,80 @@ var watchMark = new Vue({
         }
     }
 })
+var save = new Vue({
+    el:'#save',
+    data:{
+        hash:'',
+        show:false
+    },
+    methods:{
+        save:function () {
+            var me = this;
+            if(this.hash && !testHash(this.hash)){
+                alert('请重新验证后缀名!');
+                return false;
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState ===4 && xhr.status === 200){
+                    var text = xhr.responseText;
+                    if(text !== '-1'){
+                        this.show = false;
+                        alert('书签保存成功!点击确定为您跳转到新的书签导航页:\nhttp://webmarker.inmybgm.com/#'+text)
+                        window.location.href = 'http://webmarker.inmybgm.com/#'+text;
+                    }else{
+                        alert('书签保存失败..请充实==重试');
+                    }
+                }
+            }
+            xhr.open('POST','data/add_bm.php',true);
+            var data = {bookmarks:bookmarks,hash:''};
+            data.hash = this.hash;
+            if(bookmarks.length>0){
+                xhr.send(JSON.stringify(data));
+            }else{
+                alert('您的书签为空,无法保存!');
+            }
+        },
+        check:function(){
+            if(this.hash){
+                if(!testHash(this.hash)){
+                    alert('后缀名命名规则遵循JS变量命名规则,请重新输入!');
+                    return false;
+                }
+            }else{
+                alert('如果后缀名为空,系统将自动为您分配随机的后缀名');
+                return false;
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState ===4 && xhr.status === 200){
+                    if(xhr.responseText === '1'){
+                        alert('恭喜,该后缀名可用!');
+                    }else{
+                        alert('抱歉,该后缀名已存在,如果需要覆盖可直接点保存');
+                    }
+                }
+            }
+            xhr.open('POST','data/query_bm.php',true);
+            xhr.send(this.hash);
+        }
+    }
+});
+!function(){
+    var hash = window.location.hash.slice(1);
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function (){
+        if(xhr.readyState ===4 && xhr.status ===200){
+            var bookmarks = JSON.parse(xhr.responseText);
+            watchMark.bookmarks = bookmarks;
+            marks.list = bookmarks[0].dt;
+        }
+    };
+    xhr.open('POST','data/get_bm.php',true);
+    xhr.send(JSON.stringify({hash:hash}));
+}();
+function testHash(str){
+    var reg = /^[a-zA-Z\$_][$_\w]*$/;
+    return reg.test(str);
+}
