@@ -7,18 +7,26 @@ var navWidth = parseFloat(getComputedStyle(nav).width);
 var startX = 0,startY=0;
 var timer = null;
 var mask = document.getElementById('mask');
+var  link_container = document.getElementsByClassName('link_container')[0];
+var main = document.getElementById('main');
+link_container.style.width = window.innerWidth - parseFloat(getComputedStyle(main).paddingLeft) + 'px';
 window.document.addEventListener('touchstart',function(e){
     var target = e.target || e.srcElement;
     startX = e.targetTouches[0].pageX;
     startY = e.targetTouches[0].pageY;
+    while(target.nodeName!=='SECTION' && target.parentNode){
+        target = target.parentNode;
+    }
     if(target.id==='main'){timer = setTimeout(function(){showSearch();},800)}
 });
 var originX = getOffset(nav);
 window.document.addEventListener('touchmove',function(e){
+    clearTimeout(timer);
    if(getComputedStyle(mask).zIndex<0){
        var sx = startX;
        var ex = e.targetTouches[0].pageX;
        nav.style.transform = 'matrix(1,0,0,1,'+ (originX-(sx-ex)) +',0)';
+       nav.style.zIndex = '3';
    }
 },false);
 window.document.addEventListener('touchend',function(e){
@@ -28,6 +36,7 @@ window.document.addEventListener('touchend',function(e){
         nav.style.transform = 'matrix(1,0,0,1,0,0)';
     }else{
         nav.style.transform = 'matrix(1,0,0,1,'+-Math.ceil(navWidth)+',0)';
+        nav.style.zIndex = '1';
     }
     nav.addEventListener('transitionend',function(){
         nav.className='';
@@ -42,6 +51,9 @@ window.document.addEventListener('keydown',function(e){
         hideSearch();
     }
 },false);
+window.addEventListener('resize',function(){
+    link_container.style.width = window.innerWidth - parseFloat(getComputedStyle(main).paddingLeft) + 'px';
+},false)
 mask.addEventListener('click',function(e){
     var target  = e.target || e.srcElement;
     if(target.id==='mask'){hideSearch()}
@@ -67,6 +79,7 @@ function hideSearch(){
         ipt.clear();
     });
 }
+
 //vue:
 var ipt = new Vue({
     el:'#search',
@@ -77,7 +90,7 @@ var ipt = new Vue({
     },
     watch:{
         result:function(){
-            if(this.result.length>1){
+            if(this.result.length>0){
                 search_box.style.bottom = 0;
             }else{
                 search_box.style.bottom = '';
@@ -86,7 +99,6 @@ var ipt = new Vue({
     },
     methods:{
         search:function(e){
-            console.log(this);
             this.result = [];
             if(!this.keywords.trim()){return false}
             var reg = new RegExp(this.keywords,'gi');
@@ -145,11 +157,15 @@ window.document.addEventListener('drop',function(e){
         marks.list = bookmarks[0].b;
         document.getElementsByClassName('scroll-content')[0].style.transform = 'translate3d(0,0,0);'
         save.show = true;
+        ipt.bmList = getBmList(bookmarks);
         /*这里最后使用webworker*/
     }
 },false);
 function dealStr(str){
     str  = dealSim(str);
+    if(checkBrowser(str)==='mozilla'){
+        str = cutMozilla(str);
+    }
     divDL(bookmarks,cutHeadFoot(str));
     function divDL(arr,str){
         var obj = {};
@@ -232,12 +248,21 @@ function dealStr(str){
         str = str.replace(/<DT>|<p>|ADD_DATE="\w+"|ICON="[^"]+"|LAST_MODIFIED="\w+"/g,'');//去掉垃圾信息
         str = str.replace(/[\s|\S]+<\/H1>/,'');//去掉h1前面所有
         str = str.replace(/>\s*</g,'><');//去掉><之间空格
-        str = str.replace(/<H3[^>]+>/,'<H3>');//去掉h3之间的多余信息
+        str = str.replace(/<H3[^>]+>/g,'<H3>');//去掉h3之间的多余信息
         str = str.replace(/\s{2,}/g,' ');//压缩空格
         str = str.replace(/\s+>/g,'>');
         return str.trim();
     }
-    
+    function checkBrowser(str){
+        var mozilla = /<HR><H3>Mozilla/i;//第一个h3为mozila
+        if(mozilla.test(str)){
+                return 'mozilla';
+            }
+    }
+    function cutMozilla(str){
+        // str = str.replace(/(<\/DL>)\1$/g,'</DL>');
+        return str.replace(/<DL>[\s|\S]+?<\/DL>/i,'<DL>');
+    }
 }
 Vue.component('item', {
     template: '#item-template',
@@ -283,18 +308,14 @@ Vue.component('item', {
 })
 var marks = new Vue({
     el:'#linkList',
-    data(){
-        return {
-            list:[]
-        }
+    data:{
+        list:[]
     }
 })
 var watchMark = new Vue({
     el: '#nav_folder',
-    data(){
-        return {
-            bookmarks: bookmarks[0]?bookmarks[0].f:[]
-        }
+    data:{
+        bookmarks: bookmarks[0]?bookmarks[0].f:[]
     }
 })
 var save = new Vue({
@@ -316,8 +337,9 @@ var save = new Vue({
                     var text = xhr.responseText;
                     if(text !== '-1'){
                         this.show = false;
-                        alert('书签保存成功!点击确定为您跳转到新的书签导航页:\nhttp://webmarker.inmybgm.com/#'+text)
-                        window.location.href = 'http://webmarker.inmybgm.com/#'+text;
+                        alert('书签保存成功!点击确定为您跳转到新的书签导航页:\nhttp://webmarker.youledi.cn/#'+text)
+                        // window.location.href = 'http://webmarker.youledi.cn/#'+text;
+                        // window.location.reload();
                     }else{
                         alert('书签保存失败..请充实==重试');
                     }
@@ -399,9 +421,38 @@ function testHash(str){
     var reg = /^[a-zA-Z\$_][$_\w]*$/;
     return reg.test(str);
 }
-var help = new Vue({
-    el:'#help',
+var targetChange = new Vue({
+    el:'#targetChange',
     data:{
-        
+        newTarget:false,
+        targetELe:document.querySelector('[target]'),
+        ele:document.getElementById('targetChange')
+    },
+    created:function(){
+        if(!window.localStorage){return}
+        if(window.localStorage.getItem('newTarget') == 'true'){
+            this.ele.innerHTML = '在新标签页打开';
+            this.targetELe.setAttribute('target','_blank');
+            this.newTarget = true;
+        }else{
+            this.ele.innerHTML = '在本标签页打开';
+            this.targetELe.setAttribute('target','_self');
+            this.newTarget = false;
+        }
+    },
+    methods:{
+        change:function(){
+            this.newTarget = !this.newTarget;
+            if(this.newTarget){
+                this.$el.innerHTML = '在新标签页打开';
+                this.targetELe.setAttribute('target','_blank');
+            }else{
+                this.$el.innerHTML = '在本标签页打开';
+                this.targetELe.setAttribute('target','_self');
+            }
+            if(!window.localStorage){return}
+            console.log(this.newTarget)
+            window.localStorage.setItem('newTarget',this.newTarget);
+        }
     }
 });

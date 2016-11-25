@@ -219,12 +219,16 @@ body{
     margin-top:20px;
     font-size:18px;
     li{
-      padding:8px 0;
+      overflow:hidden;
+      height:30px;
+      line-height:30px;
       a{
         color:$main-color;
+        float:left;
       }
       span{
-        display:inline-block;
+        //float:left;
+        //display:inline-block;
         padding-left:20px;
         margin-left:20px;
         border-left:2px solid $bg-drak;
