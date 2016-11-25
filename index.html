@@ -13,17 +13,16 @@
 <script type="text/x-template" id="item-template">
     <li>
         <a
-                :class="{bold: isFolder}"
-                @click="toggle"
-                @click="getDt"
-                @dblclick="changeType">
-            {{model.h3}}
+            :class="{bold: isFolder}"
+            @click="toggle"
+            @click="getDt"
+            @dblclick="changeType">
+            {{model.h}}
         </a>
         <ul v-show="open" v-if="isFolder">
             <item
-                    class="item"
-                    v-for="model in model.dl"
-                    :model="model">
+                v-for="model in model.f"
+                :model="model">
             </item>
         </ul>
     </li>
@@ -37,17 +36,20 @@
            </item>
        </ul>
    </div>
+    <div id="help">
+        <a href="#">使用说明</a>
+        <a href="#">新标签页打开</a>
+    </div>
 </nav>
 <section id="main">
    <div class="link_container" data-scrollbar="">
        <ul id="linkList" >
-           <li v-for="dt in list">
-               <a v-bind:href="dt.href">{{dt.tit?dt.tit:'书签名未填写'}}
-                   <span v-if="dt.desc">{{dt.desc}}</span>
+           <li v-for="bm in list">
+               <a v-bind:href="bm.a">{{bm.t?bm.t:'书签名未填写'}}
+                   <span v-if="bm.d">{{bm.d}}</span>
                </a>
            </li>
        </ul>
-
    </div>
     <div id="save" v-show="show">
         <input type="text" placeholder="自定义后缀名,如不需要直接点保存即可" v-model="hash">
@@ -56,19 +58,21 @@
     </div>
 </section>
 <div id="mask">
-    <aside id="search" class="sliderEnd">
-        <div class="ipt">
-            <input v-on:keyup.enter="test" type="text">
-        </div>
-        <div class="list">
-            <ul>
-                <li><a href="#">结果2</a></li>
-                <li><a href="#">结果2</a></li>
-                <li><a href="#">结果2</a></li>
-                <li><a href="#">结果2</a></li>
-                <li><a href="#">结果2</a></li>
-                <li><a href="#">结果2</a></li>
-            </ul>
+    <aside id="search_box" class="sliderEnd">
+        <div id="search">
+            <div class="ipt">
+                <input v-model="keywords" @input="search" type="text" >
+            </div>
+            <div class="result_container" data-scrollbar="">
+                <div class="list">
+                    <ul>
+                        <li v-for="bm in result">
+                            <a :href="bm.a">{{bm.t}}</a>
+                            <span>{{bm.d}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </aside>
 </div>

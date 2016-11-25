@@ -2,7 +2,7 @@
  * Created by cMing on 2016/11/3.
  */
 var nav = document.getElementById('nav');
-var search = document.getElementById('search');
+var search_box = document.getElementById('search_box');
 var navWidth = parseFloat(getComputedStyle(nav).width);
 var startX = 0,startY=0;
 var timer = null;
@@ -34,8 +34,8 @@ window.document.addEventListener('touchend',function(e){
         originX = getOffset(nav);
     });
 },false);
-window.document.addEventListener('keyup',function(e){
-    if(e.code ==='Slash'){
+window.document.addEventListener('keydown',function(e){
+    if(e.code ==='Space'){
         showSearch();
     }
     if(e.code ==='Escape' && getComputedStyle(mask).zIndex>0){
@@ -47,41 +47,62 @@ mask.addEventListener('click',function(e){
     if(target.id==='mask'){hideSearch()}
 },false);
 function showSearch(){
-    var input = search.getElementsByTagName('input')[0];
+    var input = search_box.getElementsByTagName('input')[0];
     mask.style.zIndex = 1000;
     Velocity(mask,'finish');
     Velocity(mask,{
         backgroundColor:'#000',
         backgroundColorAlpha:0.3
     },300);
-    search.style.transform = 'translateY(0)';
-    input.focus();
+    search_box.style.transform = 'translateY(0)';
+    setTimeout(function(){input.focus()},200)
 }
 function hideSearch(){
-    var input = search.getElementsByTagName('input')[0];
-    search.style.transform = 'translateY(-100%)';
+    var input = search_box.getElementsByTagName('input')[0];
+    search_box.style.transform = 'translateY(-100%)';
     Velocity(mask,'finish');
     Velocity(mask,'reverse',function(){
         mask.style.zIndex = -1;
         input.value = '';input.blur();
+        ipt.clear();
     });
 }
 //vue:
 var ipt = new Vue({
-    el:'#search input',
+    el:'#search',
     data:{
-        msg:'test'
+        keywords:'',
+        result:[],
+        bmList:[]
     },
-    create:function(){
-      console.log(1)
+    watch:{
+        result:function(){
+            if(this.result.length>1){
+                search_box.style.bottom = 0;
+            }else{
+                search_box.style.bottom = '';
+            }
+        }
     },
     methods:{
-        test:function(){
-
-            alert('succ!');
+        search:function(e){
+            console.log(this);
+            this.result = [];
+            if(!this.keywords.trim()){return false}
+            var reg = new RegExp(this.keywords,'gi');
+            for(var i=0;i<this.bmList.length;i++){
+                var bm = this.bmList[i];
+                if(reg.test(bm.t) || reg.test(bm.d)){
+                    this.result.push(bm);
+                }
+            }
+        },
+        clear:function(){
+            this.result = [];
+            this.keywords ='';
+            return false;
         }
     }
-
 });
 function getOffset(ele){
     var reg = /matrix\(\s?1,\s?0,\s?0,\s?1,([^,]+),\s?0\)/;
@@ -95,6 +116,9 @@ function transform(ele,prop){
 }
 /*滚动条*/
 Scrollbar.init(document.getElementsByClassName('scl_container')[0],{
+    overscrollEffect:'bounce'
+});
+Scrollbar.init(document.getElementsByClassName('result_container')[0],{
     overscrollEffect:'bounce'
 });
 Scrollbar.init(document.getElementsByClassName('link_container')[0],{
@@ -118,30 +142,28 @@ window.document.addEventListener('drop',function(e){
         bookmarks = [];
         dealStr(bookmarksOrigin);
         watchMark.bookmarks = bookmarks;
-        marks.list = bookmarks[0].dt;
+        marks.list = bookmarks[0].b;
+        document.getElementsByClassName('scroll-content')[0].style.transform = 'translate3d(0,0,0);'
         save.show = true;
         /*这里最后使用webworker*/
     }
 },false);
 function dealStr(str){
     str  = dealSim(str);
-    if(checkBrowser(str)==='mozilla'){
-        str = cutMozilla(str);
-    }
     divDL(bookmarks,cutHeadFoot(str));
     function divDL(arr,str){
         var obj = {};
-        obj.h3 = (str.match(/^<H3>([\s|\S]+?)<\/H3>/))[0].slice(4,-5);
+        obj.h = (str.match(/^<H3>([\s|\S]+?)<\/H3>/))[0].slice(4,-5);
         str = cutHeadFoot(str);
         var result = findAllG(str);
         if(result.length>0){
-            obj.dl = [];
+            obj.f = [];
             for(var i=0;i<result.length;i++){
-                divDL(obj.dl,result[i]);
+                divDL(obj.f,result[i]);
             }
             str = removeH3Dl(str);
         }
-        obj.dt = getDt(str);
+        obj.b = getDt(str);
         arr.push(obj);
     }
     function findAllG(str){
@@ -198,23 +220,13 @@ function dealStr(str){
                     desc = '';
                 }
                 dtList[dtList.length] = {
-                    href:result[1],
-                    tit:tit,
-                    desc:desc
+                    a:result[1],
+                    t:tit,
+                    d:desc
                 };
             }
         }
         return dtList;
-
-    }
-    function checkBrowser(str){
-        var mozilla = /<H3[^>]+>?\s*Mozilla/i;//第一个h3为mozila
-        if(mozilla.test(str)){
-            return 'mozilla';
-        }
-    }
-    function cutMozilla(str){
-        return str.replace(/<DT>[\s|\S]+?<\/DL>/i,'');
     }
     function dealSim(str){
         str = str.replace(/<DT>|<p>|ADD_DATE="\w+"|ICON="[^"]+"|LAST_MODIFIED="\w+"/g,'');//去掉垃圾信息
@@ -225,6 +237,7 @@ function dealStr(str){
         str = str.replace(/\s+>/g,'>');
         return str.trim();
     }
+    
 }
 Vue.component('item', {
     template: '#item-template',
@@ -233,7 +246,7 @@ Vue.component('item', {
     },
     data: function () {
         var boolean = false;
-        if(this.model.h3==='收藏栏' | this.model.h3==='书签栏'){
+        if(this.model.h==='收藏栏' | this.model.h==='书签栏'){
             boolean = true;
         }
         return {
@@ -242,7 +255,7 @@ Vue.component('item', {
     },
     computed: {
         isFolder: function () {
-            if(this.model.dl){
+            if(this.model.f){
                 return true;
             }else{
                 return false;
@@ -257,12 +270,12 @@ Vue.component('item', {
         },
         changeType: function () {
             if (!this.isFolder) {
-                Vue.set(this.model, 'dl', [])
+                Vue.set(this.model, 'f', []);
                 this.open = true
             }
         },
         getDt:function(){
-            marks.list = this.model.dt;
+            marks.list = this.model.b;
             //将列表内的滚动条置0;
             document.getElementsByClassName('scroll-content')[0].style.transform = 'translate3d(0,0,0);'
         }
@@ -280,7 +293,7 @@ var watchMark = new Vue({
     el: '#nav_folder',
     data(){
         return {
-            bookmarks: bookmarks[0]?bookmarks[0].dl:[]
+            bookmarks: bookmarks[0]?bookmarks[0].f:[]
         }
     }
 })
@@ -349,15 +362,46 @@ var save = new Vue({
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function (){
         if(xhr.readyState ===4 && xhr.status ===200){
-            var bookmarks = JSON.parse(xhr.responseText);
-            watchMark.bookmarks = bookmarks;
-            marks.list = bookmarks[0].dt;
+            var obj = JSON.parse(xhr.responseText);
+            bookmarks = watchMark.bookmarks = obj;
+            marks.list = bookmarks[0].b;
+            ipt.bmList = getBmList(bookmarks);
         }
     };
     xhr.open('POST','data/get_bm.php',true);
     xhr.send(JSON.stringify({hash:hash}));
 }();
+function getBmList(arr){
+    var list = [];
+    getF(arr);
+    function getF(arr){
+        for(var i=0;i<arr.length;i++){
+            if(arr[i].b){
+                getB(arr[i].b);
+            }
+            if(arr[i].f){
+                getF(arr[i].f)
+            }
+        }
+    }
+    function getB(arr){
+        for(var i=0;i<arr.length;i++){
+            list.push({
+                a:arr[i].a,
+                d:arr[i].d,
+                t:arr[i].t
+            });
+        }
+    }
+    return list;
+}
 function testHash(str){
     var reg = /^[a-zA-Z\$_][$_\w]*$/;
     return reg.test(str);
 }
+var help = new Vue({
+    el:'#help',
+    data:{
+        
+    }
+});
