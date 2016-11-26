@@ -21,7 +21,7 @@ a, a:hover, a:focus, a:link {
   position: absolute;
   bottom: 0;
   top: 0;
-  z-index: 1;
+  z-index: 3;
   left: 0;
   transform: translateX(0); }
   #nav:before {
@@ -70,6 +70,28 @@ a, a:hover, a:focus, a:link {
     font-size: 14px;
     padding: 0 5px; }
 
+#handbook {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 3; }
+  #handbook .bandbook_container {
+    width: 70%;
+    height: 80%;
+    overflow: auto;
+    border-radius: 20px;
+    background-color: #efefef;
+    margin: 50px auto 0; }
+    #handbook .bandbook_container .scroll-content {
+      padding: 20px; }
+
+.scroll-content {
+  outline: none; }
+
 .sliderEnd {
   transition: transform 300ms ease-out; }
 
@@ -89,7 +111,8 @@ a, a:hover, a:focus, a:link {
     z-index: 2; }
   #main ul {
     padding-top: 30px;
-    padding-bottom: 30px; }
+    padding-bottom: 30px;
+    outline: none; }
     #main ul li {
       display: inline-block;
       margin-bottom: 25px; }
@@ -157,7 +180,12 @@ a, a:hover, a:focus, a:link {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.01);
-  z-index: -1; }
+  z-index: -1;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  transition: all 0.3s; }
 
 #search_box {
   position: absolute;
@@ -194,14 +222,16 @@ a, a:hover, a:focus, a:link {
     font-size: 18px; }
     #search_box .list li {
       overflow: hidden;
-      height: 30px;
-      line-height: 30px; }
+      height: 36px;
+      line-height: 36px;
+      border-bottom: 1px solid #fff; }
       #search_box .list li a {
         color: #549ff1;
         float: left; }
       #search_box .list li span {
         padding-left: 20px;
         margin-left: 20px;
+        color: #666;
         border-left: 2px solid #393939; }
 
 @media (max-width: 768px) {

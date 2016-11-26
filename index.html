@@ -38,7 +38,7 @@
        </ul>
    </div>
     <div id="help">
-        <a href="#">使用说明</a>
+        <a id="handbook_btn" href="#">使用说明</a>
         <a @click.prevent="change" id="targetChange" href="#">在本标签页打开</a>
     </div>
 </nav>
@@ -77,8 +77,23 @@
         </div>
     </aside>
 </div>
+<div id="handbook">
+    <div class="bandbook_container">
+        <h3>WebMarker使用说明</h3>
+        <p>WebMarker是一个根据书签收藏夹生成的网址导航网站,每个人都可以自定义生成属于自己的一个网址导航.</p>
+        <p>网站默认显示前端开发导航,里面的内容都是我长期以来收集的优质前端资源,如果您有更优秀更好的关于前端资源,也可以参照以下书签导航制作方法,将生成的链接发送给我,我的联系方式见最下方.采纳后我会同步更新到首页上</p>
+        <p>网站目前兼容IE10以上,并且支持移动端访问,如果您发现网站存在一些bug或不合理的地方,请将问题描述清楚,并注明使用的浏览器版本,通过最下方的联系方式通知我,我会及时做出调整</p>
+        <h3>操作说明:</h3>
+        <p>pc端:</p>
+        <p>按"空格键"可弹出搜索框,可搜索当前网页的所有书签名称和描述,不包括文件夹,搜索结束可按"ESC"键退出</p>
+        <p>点击"在新标签中打开链接"可以切换网页打开链接方式,并记录您的使用习惯,网页关闭并重新打开后依然有效</p>
+        <p>移动端:</p>
+        <p>手指左右滑动可呼出书签面板,轻触空白处可隐藏面板</p>
+        <p>长按空白处可弹出搜索框,可搜索当前网页的所有书签名称和描述,不包括文件夹,搜索结束删除所有搜索关键词,并且轻触黑色阴影处即可退出</p>
+    </div>
+</div>
 <script src="js/vue.min.js"></script>
-<script src="js/velocity.min.js"></script>
+<!--<script src="js/velocity.min.js"></script>-->
 <script src="js/smooth-scrollbar.js"></script>
 <script src="js/index.js"></script>
 </body>
