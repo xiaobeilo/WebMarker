@@ -1,3 +1,24 @@
+//判断访问终端
+var browser={
+    versions:function(){
+        var u = navigator.userAgent, app = navigator.appVersion;
+        return {
+            trident: u.indexOf('Trident') > -1, //IE内核
+            presto: u.indexOf('Presto') > -1, //opera内核
+            webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+            gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1,//火狐内核
+            mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+            ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+            android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+            iPhone: u.indexOf('iPhone') > -1 , //是否为iPhone或者QQHD浏览器
+            iPad: u.indexOf('iPad') > -1, //是否iPad
+            webApp: u.indexOf('Safari') == -1, //是否web应该程序，没有头部与底部
+            weixin: u.indexOf('MicroMessenger') > -1, //是否微信 （2015-01-22新增）
+            qq: u.match(/\sQQ/i) == " qq" //是否QQ
+        };
+    }(),
+    language:(navigator.browserLanguage || navigator.language).toLowerCase()
+}
 /**
  * Created by cMing on 2016/11/3.
  */
@@ -7,6 +28,8 @@ var navWidth = parseFloat(getComputedStyle(nav).width);
 var startX = 0,startY=0;
 var endX=0,endY=0;
 var timer = null;
+var isMobile = false;
+if(browser.versions.mobile||browser.versions.android||browser.versions.ios){isMobile = true;}
 var mask = document.getElementById('mask');
 var  link_container = document.getElementsByClassName('link_container')[0];
 var main = document.getElementById('main');
@@ -18,7 +41,7 @@ window.document.addEventListener('touchstart',function(e){
     while(target.nodeName!=='SECTION' && target.parentNode){
         target = target.parentNode;
     }
-    if(target.id==='main'){timer = setTimeout(function(){},800)}
+    if(target.id==='main'){timer = setTimeout(function(){showSearch()},800)}
 });
 var originX = getOffset(nav);
 window.document.addEventListener('touchmove',function(e){
@@ -30,15 +53,12 @@ window.document.addEventListener('touchmove',function(e){
     }
     if(Math.abs(endX-sx)===0 && Math.abs(endY-sy)===0){
         endX=0;endY=0;
+    }else{
+        clearTimeout(timer)
     }
 },false);
 window.document.addEventListener('touchend',function(e){
-    console.log(endY,endX)
-    if(endX===0 && endY===0){
-        showSearch();
-    }else{
-        clearTimeout(timer);
-    }
+    clearTimeout(timer);timer = null;
     nav.className = 'sliderEnd';
     var target = e.target;
     while(target.id!=='nav' && target.parentNode){
@@ -54,6 +74,7 @@ function hideNav(){
         this.removeEventListener('transitionend',arguments.callee);
     });
 }
+
 nav.addEventListener('transitionend',function(){
     nav.className='';
     originX = getOffset(nav);
@@ -69,7 +90,7 @@ window.document.addEventListener('keydown',function(e){
 window.addEventListener('resize',function(){
     link_container.style.width = window.innerWidth - parseFloat(getComputedStyle(main).paddingLeft) + 'px';
 },false)
-mask.addEventListener('click',function(e){
+mask.addEventListener(isMobile?'touchend':'click',function(e){//移动端在touchend之后出现mask会触发click事件
     var target  = e.target || e.srcElement;
     if(target.id==='mask'){hideSearch()}
 },false);
@@ -92,6 +113,7 @@ function showSearch(){
 }
 function hideSearch(){
     var input = search_box.getElementsByTagName('input')[0];
+    input.blur();
     transform(search_box,'translateY(-100%)');
     mask.style.backgroundColor = 'rgba(0,0,0,0.01)';
     mask.addEventListener('transitionend',function(){
@@ -165,6 +187,10 @@ window.document.addEventListener('dragover',function(e){
 },false);
 window.document.addEventListener('drop',function(e){
     e.preventDefault();
+    if(e.dataTransfer.files[0].type!=='text/html'){
+        alert('请拖入书签导出的HTML文件!')
+        return false;
+    }
     var reader = new FileReader();
     reader.readAsText(e.dataTransfer.files[0]);
     reader.onload = function(){
@@ -187,9 +213,13 @@ function dealStr(str){//所有处理书签的逻辑
     }
     divDL(bookmarks,cutHeadFoot(str));
     function divDL(arr,str){
+
         var obj = {};
         obj.h = (str.match(/^<H3>([\s|\S]+?)<\/H3>/))[0].slice(4,-5);
         str = cutHeadFoot(str);
+        if(str.slice(0,20).indexOf('gulp')!==-1){
+            console.log('ok')
+        }
         var result = findAllG(str);
         if(result.length>0){
             obj.f = [];
@@ -205,9 +235,10 @@ function dealStr(str){//所有处理书签的逻辑
         var arr = [];
         var len= str.length;
         var cache = '';
-        while(cache = digDLFoot(str)){
-            arr.push(cache);
-            str = str.slice(cache.length);
+        var chacheObj = {};
+        while(chacheObj = digDLFoot(str)){
+            arr.push(chacheObj.cache);
+            str = str.slice(chacheObj.end);
         }
         function digDLFoot(str){
             var start = str.indexOf('<H3>');
@@ -219,7 +250,10 @@ function dealStr(str){//所有处理书签的逻辑
                     end = str.indexOf('</DL>',end+5);
                     cache = str.slice(start,end+5);
                 }
-                return cache;
+                return {
+                    cache:cache,
+                    end:end+5//这里必须返回end值来记录要截取的数量
+                };
             }else {
                 return false;
             }
@@ -242,7 +276,7 @@ function dealStr(str){//所有处理书签的逻辑
                 var result = dtListStr[i].match(/<A\sHREF="([^"]+)">([^<]*)<\/A>/);
                 var name = result[2],tit='',desc='';
                 if(name){
-                    var nameResult = name.match(/^([^,，\-\_|]+)[,，\s\-\|]*(.*)/);
+                    var nameResult = name.match(/^([^,，·\-\_:\|]+)[,，·\s\-\_:\|]*(.*)/);
                     if(nameResult){
                         tit = nameResult[1];
                         desc = nameResult[2];
@@ -283,14 +317,14 @@ function dealStr(str){//所有处理书签的逻辑
         return str.replace(/<DL>[\s|\S]+?<\/DL>/i,'<DL>');
     }
 }
-Vue.component('item', {
+Vue.component('item',{
     template: '#item-template',
     props: {
         model: Object
     },
     data: function () {
         var boolean = false;
-        if(this.model.h==='收藏栏' | this.model.h==='书签栏'){
+        if(this.model.h==='收藏栏' || this.model.h==='书签栏'){
             boolean = true;
         }
         return {
@@ -309,19 +343,14 @@ Vue.component('item', {
     methods: {
         toggle: function () {
             if (this.isFolder) {
-                this.open = !this.open
+                this.open = !this.open;
             }
-        },
-        changeType: function () {
-            if (!this.isFolder) {
-                Vue.set(this.model, 'f', []);
-                this.open = true
-            }
+
         },
         getDt:function(){
             marks.list = this.model.b;
             //将列表内的滚动条置0;
-            document.getElementsByClassName('scroll-content')[0].style.transform = 'translate3d(0,0,0);'
+            link_container.getElementsByClassName('scroll-content')[0].style.transform = 'translate3d(0,0,0)'
         }
     }
 })
@@ -356,7 +385,7 @@ var save = new Vue({
                     var text = xhr.responseText;
                     if(text !== '-1'){
                         this.show = false;
-                        alert('书签保存成功!点击确定为您跳转到新的书签导航页:\nhttp://webmarker.youledi.cn/#'+text)
+                        alert('书签保存成功!点击确定为您跳转到新的书签导航页:\nhttp://webmarker.youledi.cn/#'+text);
                         window.location.href = 'http://webmarker.youledi.cn/#'+text;
                         window.location.reload();
                     }else{

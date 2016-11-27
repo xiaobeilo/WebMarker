@@ -18,7 +18,8 @@ body{
   top:0;
   z-index:3;
   left:0;
-  transform:translateX(0);
+  -webkit-transform:translateX(0);
+          transform:translateX(0);
   &:before{
     display:none;
   }
@@ -43,6 +44,16 @@ body{
     overflow:hidden;
     ul{
       text-align:center;
+      background-color:$bg-drak;
+      ul{
+        ul{
+          background-color:lighten($bg-drak,2%);
+          ul{
+            background-color:lighten($bg-drak,5%);
+
+          }
+        }
+      }
       li{
         a{
           display: block;
@@ -92,6 +103,24 @@ body{
     border-radius:20px;
     background-color:$bg-light;
     margin:50px auto 0;
+    h3{
+      font-size:16px;
+      color:$bg-drak;
+      padding:15px 0;
+    }
+    p{
+      font-size:14px;
+      color:lighten($bg-drak,20%);
+      padding:8px 0;
+    }
+    b{
+      padding:0 3px;
+      //color:#F73C3C;
+      color:$main-color;
+    }
+    a{
+      color: $main-color;
+    }
     .scroll-content{
       padding:20px;
     }
@@ -101,7 +130,10 @@ body{
   outline:none;
 }
 .sliderEnd{
+  -webkit-transition:-webkit-transform 300ms ease-out;
+  transition:-webkit-transform 300ms ease-out;
   transition:transform 300ms ease-out;
+  transition:transform 300ms ease-out, -webkit-transform 300ms ease-out;
 }
 #main{
   //padding:30px 30px 30px 250px;
@@ -134,11 +166,11 @@ body{
         color:#666;
         padding:$yPadding $xPadding;
         line-height:$height;
-        height:$height;
         border:1px solid $main-color;
         border-radius:$borderRadius;
         margin-left:25px;
         display:block;
+        -webkit-transition:all 300ms linear;
         transition:all 300ms linear;
         position:relative;
         span{
@@ -150,7 +182,8 @@ body{
             position:absolute;
             top:$height + 3 * $yPadding;
             left:50%;
-            transform:translateX(-50%);
+            -webkit-transform:translateX(-50%);
+                    transform:translateX(-50%);
             background-color:$bg-drak;
             color:$bg-light;
             padding:$yPadding $xPadding;
@@ -206,9 +239,6 @@ body{
   background-color:rgba(0,0,0,0.01);
   z-index:-1;
   -webkit-transition: all 0.3s;
-  -moz-transition: all 0.3s ;
-  -ms-transition: all 0.3s ;
-  -o-transition: all 0.3s ;
   transition: all 0.3s ;
 }
 #search_box{
@@ -220,7 +250,8 @@ body{
   background-color:$bg-light;
   padding:0.5% 1%;
   box-sizing:border-box;
-  transform:translateY(-100%);
+  -webkit-transform:translateY(-100%);
+          transform:translateY(-100%);
   will-change:transform;
   .ipt{
     box-sizing:border-box;
@@ -270,7 +301,8 @@ body{
   #nav{
     width:50%;
     float:left;
-    transform:translateX(-100%);
+    -webkit-transform:translateX(-100%);
+            transform:translateX(-100%);
     &:before{
       content:'';
       display:block;
@@ -308,6 +340,7 @@ body{
   }
 }
 .fade-enter-active, .fade-leave-active {
+  -webkit-transition:opacity .5s;
   transition: opacity .5s
 }
 .fade-enter, .fade-leave-active {

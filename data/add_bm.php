@@ -8,7 +8,7 @@ if($content->hash===''){
 }else{
     $hash = $content->hash;
 }
-$conn = mysqli_connect('127.0.0.1','root','','webmarker',3306);
+$conn = mysqli_connect('122.10.113.142','cmingvip_root','cMing1001','cmingvip_webmarker',3306);
 mysqli_query($conn,'SET NAMES UTF8');
 file_put_contents("bms/$hash.txt",$bookmarks);
 $src = $hash.'.txt';
@@ -30,11 +30,6 @@ if($search === false){
         echo $hash;
     }
 }
-
-
-
-
-
 function getRandomString($len, $chars=null){
     if (is_null($chars)){
         $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
