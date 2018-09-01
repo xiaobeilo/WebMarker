@@ -1,0 +1,23 @@
+{
+  "name": "webmarker",
+  "version": "1.0.0",
+  "description": "在线演示地址: [http://webmarker.youledi.cn](http://webmarker.youledi.cn)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cMing404/WebMarker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cMing404/WebMarker/issues"
+  },
+  "homepage": "https://github.com/cMing404/WebMarker#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}

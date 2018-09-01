@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,10 +9,12 @@
     <link href="//cdn.bootcss.com/smooth-scrollbar/6.0.1/smooth-scrollbar.css" rel="stylesheet">
     <!--<link rel="stylesheet" href="css/style.min.css">-->
     <link rel="stylesheet" href="http://oh6ot5at0.bkt.clouddn.com/style.min.css">
-    <base target="_self"/>
+    <base target="_self" />
 </head>
+
 <body>
-<script type="text/x-template" id="item-template">
+    <script src="./js/bookmarks.js"></script>
+    <script type="text/x-template" id="item-template">
     <li>
         <a v-if="isMobile"
             :class="{bold: isFolder}"
@@ -33,89 +36,90 @@
         </ul>
     </li>
 </script>
-<nav id="nav">
-    <a target="_self" class="logo" href="">
-        <img src="http://oh6ot5at0.bkt.clouddn.com/vn_100x100.jpg" alt="">
-        <h1>WebMarker</h1>
-    </a>
-   <div class="scl_container" data-scrollbar="">
-       <ul id="nav_folder">
-           <item v-for="model in bookmarks"
-                   :model="model">
-           </item>
-       </ul>
-   </div>
-    <div id="help">
-        <a id="handbook_btn" href="#">使用说明</a>
-        <a @click.prevent="change" id="targetChange" href="#">在本标签页打开</a>
-    </div>
-</nav>
-<section id="main">
-   <div class="link_container" data-scrollbar="">
-       <ul id="linkList" >
-           <li v-for="bm in list">
-               <a v-bind:href="bm.a">{{bm.t?bm.t:'书签名未填写'}}
-                   <span v-if="bm.d">{{bm.d}}</span>
-               </a>
-           </li>
-       </ul>
-   </div>
-    <div id="save" v-show="show">
-        <input type="text" placeholder="自定义后缀名,如不需要直接点保存即可" v-model="hash">
-        <button @click="check">检测名称是否可用</button>
-        <button @click="save">保存并生成个性后缀</button>
-    </div>
-</section>
-<div id="mask">
-    <aside id="search_box" class="sliderEnd">
-        <div id="search">
-            <div class="ipt">
-                <input v-model="keywords" @input="search" type="text" >
-            </div>
-            <div class="result_container" data-scrollbar="">
-                <div class="list">
-                    <ul>
-                        <li v-for="bm in result">
-                            <a :href="bm.a">{{bm.t}}</a>
-                            <span>{{bm.d}}</span>
-                        </li>
-                    </ul>
+    <nav id="nav">
+        <a target="_self" class="logo" href="">
+            <img src="http://oh6ot5at0.bkt.clouddn.com/vn_100x100.jpg" alt="">
+            <h1>WebMarker</h1>
+        </a>
+        <div class="scl_container" data-scrollbar="">
+            <ul id="nav_folder">
+                <item v-for="model in bookmarks" :model="model">
+                </item>
+            </ul>
+        </div>
+        <div id="help">
+            <a id="handbook_btn" href="#">使用说明</a>
+            <a @click.prevent="change" id="targetChange" href="#">在本标签页打开</a>
+        </div>
+    </nav>
+    <section id="main">
+        <div class="link_container" data-scrollbar="">
+            <ul id="linkList">
+                <li v-for="bm in list">
+                    <a v-bind:href="bm.a">{{bm.t?bm.t:'书签名未填写'}}
+                        <span v-if="bm.d">{{bm.d}}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div id="save" v-show="show">
+            <input type="text" placeholder="自定义后缀名,如不需要直接点保存即可" v-model="hash">
+            <button @click="check">检测名称是否可用</button>
+            <button @click="save">保存并生成个性后缀</button>
+        </div>
+    </section>
+    <div id="mask">
+        <aside id="search_box" class="sliderEnd">
+            <div id="search">
+                <div class="ipt">
+                    <input v-model="keywords" @input="search" type="text">
+                </div>
+                <div class="result_container" data-scrollbar="">
+                    <div class="list">
+                        <ul>
+                            <li v-for="bm in result">
+                                <a :href="bm.a">{{bm.t}}</a>
+                                <span>{{bm.d}}</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-    </aside>
-</div>
-<div id="handbook">
-    <div class="bandbook_container">
-        <h3>WebMarker使用说明</h3>
-        <p>WebMarker是一个根据书签收藏夹生成的网址导航网站,每个人都可以自定义生成属于自己的一个网址导航.</p>
-        <p>网站默认显示前端开发导航,里面的内容都是我长期以来收集的优质前端资源,如果您有更优秀更好的关于前端资源,也可以参照以下书签导航制作方法,将生成的链接发送给我,我的联系方式见最下方.采纳后我会同步更新到首页上</p>
-        <p>网站目前兼容IE10以上,并且支持移动端访问,如果您发现网站存在一些bug或不合理的地方,请将问题描述清楚,并注明使用的浏览器版本,通过最下方的联系方式通知我,我会及时做出调整</p>
-        <p>书签支持由Chrome、Firefox导出的<b>html</b>格式标签，其他浏览器尚未测试，理论上支持Chrome内核的所有浏览器版本</p>
-        <h3>快捷键使用说明:</h3>
-        <p>pc端:</p>
-        <p>按"<b>空格键</b>"可弹出搜索框,可搜索当前网页的所有书签名称和描述,不包括文件夹,搜索结束可按"<b>ESC</b>"键退出</p>
-        <p>点击"在新标签中打开链接"可以切换网页打开链接方式,并记录您的使用习惯,网页关闭并重新打开后依然有效</p>
-        <p>移动端:</p>
-        <p>手指<b>左右滑动</b>可呼出书签面板,<b>轻触</b>空白处可隐藏面板</p>
-        <p><b>长按</b>空白处可弹出搜索框,可搜索当前网页的所有书签名称和描述,不包括文件夹,搜索结束<b>删除</b>所有搜索关键词,并且<b>轻触</b>黑色阴影处即可退出</p>
-        <h3>书签制作使用说明:</h3>
-        <p>1、以Chrome浏览器为例，首先你选确认含有至少一个书签，然后点击 <b>浏览器设置</b> - <b>书签</b> - <b>书签管理器</b>，弹出页面后，点击 <b>整理</b> - <b>从书签导出到HTML文件</b>，保存至桌面。</p>
-        <p>2、直接将生成的HTML文件拖拽至当前页面内，网页会自动根据您的书签生成相应的页面。</p>
-        <p>3、在网页下方会出现输入框，您可以根据自己喜好生成相应的后缀名，后缀名格式遵循js变量命名规范，也可以直接点击保存，后台会自动分配一个随机的后缀名给您。</p>
-        <p>4、保存后，链接会自动跳转刷新，ok！</p>
-        <h3>注意：</h3>
-        <p><b>后缀名可以随时覆盖，后台并无身份验证功能！</b>所以您命名的时候尽量不要太简单，否则容易被别人覆盖！</p>
-        <p>还有，不要覆盖我默认的首页。。</p>
-        <h3>意见及反馈：</h3>
-        <p>我的邮箱：<a href="mailto:mayday404@163.com">mayday404@163.com</a></p>
-        <p>我的博客: <a target="_blank" href="https://cming404.github.io/myblog">https://cming404.github.io/myblog</a>(原来的域名在备案中..)</p>
-        <p>项目地址: <a target="_blank" href="https://github.com/cMing404/WebMarker">https://github.com/cMing404/WebMarker</a></p>
+        </aside>
     </div>
-</div>
-<script src="//cdn.bootcss.com/vue/2.1.0/vue.min.js"></script>
-<script src="//cdn.bootcss.com/smooth-scrollbar/6.0.1/smooth-scrollbar.js"></script>
-<!--<script src="js/index.min.js"></script>-->
-<script src="http://oh6ot5at0.bkt.clouddn.com/index.min.js"></script>
+    <div id="handbook">
+        <div class="bandbook_container">
+            <h3>WebMarker使用说明</h3>
+            <p>WebMarker是一个根据书签收藏夹生成的网址导航网站,每个人都可以自定义生成属于自己的一个网址导航.</p>
+            <p>网站默认显示前端开发导航,里面的内容都是我长期以来收集的优质前端资源,如果您有更优秀更好的关于前端资源,也可以参照以下书签导航制作方法,将生成的链接发送给我,我的联系方式见最下方.采纳后我会同步更新到首页上</p>
+            <p>网站目前兼容IE10以上,并且支持移动端访问,如果您发现网站存在一些bug或不合理的地方,请将问题描述清楚,并注明使用的浏览器版本,通过最下方的联系方式通知我,我会及时做出调整</p>
+            <p>书签支持由Chrome、Firefox导出的<b>html</b>格式标签，其他浏览器尚未测试，理论上支持Chrome内核的所有浏览器版本</p>
+            <h3>快捷键使用说明:</h3>
+            <p>pc端:</p>
+            <p>按"<b>空格键</b>"可弹出搜索框,可搜索当前网页的所有书签名称和描述,不包括文件夹,搜索结束可按"<b>ESC</b>"键退出</p>
+            <p>点击"在新标签中打开链接"可以切换网页打开链接方式,并记录您的使用习惯,网页关闭并重新打开后依然有效</p>
+            <p>移动端:</p>
+            <p>手指<b>左右滑动</b>可呼出书签面板,<b>轻触</b>空白处可隐藏面板</p>
+            <p><b>长按</b>空白处可弹出搜索框,可搜索当前网页的所有书签名称和描述,不包括文件夹,搜索结束<b>删除</b>所有搜索关键词,并且<b>轻触</b>黑色阴影处即可退出</p>
+            <h3>书签制作使用说明:</h3>
+            <p>1、以Chrome浏览器为例，首先你选确认含有至少一个书签，然后点击 <b>浏览器设置</b> - <b>书签</b> - <b>书签管理器</b>，弹出页面后，点击 <b>整理</b> - <b>从书签导出到HTML文件</b>，保存至桌面。</p>
+            <p>2、直接将生成的HTML文件拖拽至当前页面内，网页会自动根据您的书签生成相应的页面。</p>
+            <p>3、在网页下方会出现输入框，您可以根据自己喜好生成相应的后缀名，后缀名格式遵循js变量命名规范，也可以直接点击保存，后台会自动分配一个随机的后缀名给您。</p>
+            <p>4、保存后，链接会自动跳转刷新，ok！</p>
+            <h3>注意：</h3>
+            <p><b>后缀名可以随时覆盖，后台并无身份验证功能！</b>所以您命名的时候尽量不要太简单，否则容易被别人覆盖！</p>
+            <p>还有，不要覆盖我默认的首页。。</p>
+            <h3>意见及反馈：</h3>
+            <p>我的邮箱：<a href="mailto:mayday404@163.com">mayday404@163.com</a></p>
+            <p>我的博客: <a target="_blank" href="https://cming404.github.io/myblog">https://cming404.github.io/myblog</a>(原来的域名在备案中..)</p>
+            <p>项目地址: <a target="_blank" href="https://github.com/cMing404/WebMarker">https://github.com/cMing404/WebMarker</a></p>
+        </div>
+    </div>
+    <script src="//cdn.bootcss.com/vue/2.1.0/vue.min.js"></script>
+    <script src="//cdn.bootcss.com/smooth-scrollbar/6.0.1/smooth-scrollbar.js"></script>
+    <!--<script src="js/index.min.js"></script>-->
+    <!-- <script src="http://oh6ot5at0.bkt.clouddn.com/index.min.js"></script> -->
+    <script src="./js/index.js"></script>
 </body>
+
 </html>

@@ -179,7 +179,7 @@ Scrollbar.init(document.getElementsByClassName('bandbook_container')[0],{
 document.getElementsByClassName('link_container')[0].style.overflowX='visible';
 document.getElementsByClassName('link_container')[0].style.overflowY='hidden';
 //书签整理:
-var bookmarks = [];
+var bookmarks = window.bookmarks;
 var bookmarksOrigin = '';
 window.document.addEventListener('dragover',function(e){
     e.preventDefault();
@@ -429,17 +429,18 @@ var save = new Vue({
 });
 !function(){
     var hash = window.location.hash.slice(1);
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function (){
-        if(xhr.readyState ===4 && xhr.status ===200){
-            var obj = JSON.parse(xhr.responseText);
-            bookmarks = watchMark.bookmarks = obj;
-            marks.list = bookmarks[0].b;
-            ipt.bmList = getBmList(bookmarks);
-        }
-    };
-    xhr.open('POST','data/get_bm.php',true);
-    xhr.send(JSON.stringify({hash:hash}));
+    // var xhr = new XMLHttpRequest();
+    // xhr.onreadystatechange = function (){
+    //     if(xhr.readyState ===4 && xhr.status ===200){
+    //         var obj = JSON.parse(xhr.responseText);
+    //         bookmarks = watchMark.bookmarks = obj;
+    //         marks.list = bookmarks[0].b;
+    //         ipt.bmList = getBmList(bookmarks);
+    //     }
+    // };
+    // xhr.open('POST','data/get_bm.php',true);
+    // xhr.send(JSON.stringify({hash:hash}));
+    // bookmarks = window.bookmarks
 }();
 function getBmList(arr){
     var list = [];
