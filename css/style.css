@@ -83,7 +83,7 @@ a, a:hover, a:focus, a:link {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  display: none;
+  display: block;
   z-index: 3; }
   #handbook .bandbook_container {
     width: 70%;
